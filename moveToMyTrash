@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Abdelhaq EL AMRAOUI 19/01/2021 18:56
+# This script is to be executed instead of the rm command
+# Instead of deleting the files with rm they will be moved to the folder
+# MY_RM_TRASH
+
+
+MY_RM_TRASH=~/.MY_RM_TRASH
+LOG=$MY_RM_TRASH/.log
+
+#create the directory MY_RM_TRASH if not existing
+! [ -d $MY_RM_TRASH ] && mkdir $MY_RM_TRASH
+
+help() {
+	echo -e "\n USAGE:  rm [Option] [File or Folder]"
+	echo -e " Move to ~/.MY_RM_TRASH"
+	echo -e "\n\t-log           Show the log of deleted files"
+	echo -e "\t-trash         Show the trash content (not the trash of the system)"
+	echo -e "\t-clean         Clean the trash (delete with the rm of the system"
+	echo -e "\t--help         Display this help and exit"
+	echo -e "\n\n AUTHOR           Abdelhaq EL AMRAOUI      Jan 19, 2021 21:37\n"
+	exit 0
+}
+
+case $1 in
+	"-log" )
+		# option to show the log
+		[ $1 = "-log" ] && [ -f $LOG ] && cat $LOG | more
+		exit 0
+	;;
+
+	"-clean" )
+		# option to clean the trash (delete the trash folder); prompt and recursive
+		echo -e "ATTENTION............................./!\ "
+		[ $1 = "-clean" ] && sudo rm -I -r $MY_RM_TRASH
+		exit 0
+	;;
+
+	"-trash" )
+		ls -l $MY_RM_TRASH | more
+		exit 0
+	;;
+	
+	"--help" )
+		# show the help of the command
+		help
+	;;
+
+	* )
+		# move the files to my trash, force and don't override an existing file
+		mv -f $@ $MY_RM_TRASH
+		# writing the deleted files in the log file
+		[ $? -eq 0 ] && echo -e `date` : $@ >> $LOG
+		exit 0
+	;;
+
+esac
